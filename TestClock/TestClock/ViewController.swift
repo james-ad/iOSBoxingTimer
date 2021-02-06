@@ -8,12 +8,18 @@
 import UIKit
 
 class ViewController: UIViewController {
+    let playPauseButton = UIButton()
+    let resetButton = UIButton()
+    var timer = Timer()
+    var timerLabel = UILabel()
+    var timerCounting: Bool = false
+    var seconds: Int = 60
     
     override func loadView() {
         super.loadView()
         view.translatesAutoresizingMaskIntoConstraints = false
         layoutButtons()
-        layoutScrollView()
+        layoutTimer()
     }
     
     override func viewDidLoad() {
@@ -21,12 +27,20 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-    @IBAction func pressPlayButton(_ sender: UIButton) {
-        print("Play button pressed")
+    @objc func pressPlayButton() {
+        if !timerCounting {
+            print("Play button pressed")
+            timerCounting = true
+            timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(runTimer), userInfo: nil, repeats: true)
+        } else {
+            timerCounting = false
+            timer.invalidate()
+        }
     }
     
-    @IBAction func resetButtonPressed(_ sender: UIButton) {
+    @objc func resetButtonPressed() {
         print("Stop button pressed")
+        resetTimer()
     }
     
     private func layoutButtons() {
@@ -35,6 +49,8 @@ class ViewController: UIViewController {
         
         playPauseButton.setImage(UIImage(named: "play-button-arrowhead.png"), for: .normal)
         resetButton.setImage(UIImage(named: "stop.png"), for: .normal)
+        playPauseButton.addTarget(self, action: #selector(pressPlayButton), for: .touchDown)
+        resetButton.addTarget(self, action: #selector(resetButtonPressed), for: .touchDown)
         
         view.addSubview(playPauseButton)
         view.addSubview(resetButton)
@@ -54,16 +70,32 @@ class ViewController: UIViewController {
         ])
     }
     
-    func layoutScrollView() {
-        let scroller = UIScrollView()
-        scroller.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(scroller)
+    func layoutTimer() {
+        timerLabel.translatesAutoresizingMaskIntoConstraints = false
+        timerLabel.text = String(seconds)
+        view.addSubview(timerLabel)
         
         NSLayoutConstraint.activate([
-            scroller.widthAnchor.constraint(equalToConstant: view.frame.width / 2),
-            scroller.heightAnchor.constraint(equalToConstant: view.frame.height * 0.2),
-            scroller.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            timerLabel.widthAnchor.constraint(equalToConstant: view.frame.width / 2),
+            timerLabel.heightAnchor.constraint(equalToConstant: view.frame.height * 0.2),
+            timerLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
+    }
+    
+    func resetTimer() {
+        timerCounting = false
+        timer.invalidate()
+        seconds = 60
+        timerLabel.text = String(seconds)
+    }
+    
+    @objc func runTimer() {
+        if seconds > 0 {
+            seconds -= 1
+            timerLabel.text = String(seconds)
+        } else {
+            resetTimer()
+        }
     }
     
 }
