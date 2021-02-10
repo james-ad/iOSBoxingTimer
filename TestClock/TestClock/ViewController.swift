@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     var timer = Timer()
     var timerLabel = UILabel()
     var timerCounting: Bool = false
-    var seconds: Int = 60
+    var seconds: UInt = 60
     
     override func loadView() {
         super.loadView()
@@ -72,7 +72,7 @@ class ViewController: UIViewController {
     
     func layoutTimer() {
         timerLabel.translatesAutoresizingMaskIntoConstraints = false
-        timerLabel.text = String(seconds)
+        timerLabel.text = timeString(time: TimeInterval(seconds))
         view.addSubview(timerLabel)
         
         NSLayoutConstraint.activate([
@@ -82,17 +82,23 @@ class ViewController: UIViewController {
         ])
     }
     
+    func timeString(time: TimeInterval) -> String {
+        let timerMinutes = Int(time) / 60 % 60
+        let timerSeconds = Int(time) % 60
+        return "\(timerMinutes) : \(timerSeconds)"
+    }
+    
     func resetTimer() {
         timerCounting = false
         timer.invalidate()
         seconds = 60
-        timerLabel.text = String(seconds)
+        timerLabel.text = timeString(time: TimeInterval(seconds))
     }
     
     @objc func runTimer() {
         if seconds > 0 {
             seconds -= 1
-            timerLabel.text = String(seconds)
+            timerLabel.text = timeString(time: TimeInterval(seconds))
         } else {
             resetTimer()
         }
